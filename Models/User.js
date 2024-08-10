@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema({
     username: {
         type: String,
-        required: true,
+        required:true,
         unique: true
     },
     ProfilePicture:{
@@ -14,11 +15,11 @@ const userSchema = new mongoose.Schema({
         type:String,
     },
     followers:[{
-        type:mongoose.schema.Types.ObjectId,
+        type:mongoose.Schema.Types.ObjectId,
         ref:"User"
     }],
     following:[{
-        type:mongoose.schema.Types.ObjectId,
+        type:mongoose.Schema.Types.ObjectId,
         ref:"User"
     }],
     createdAt: {

@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");;
+
 const Auth = require("../Models/Auth");;
 
 const signUp = async (req,res)=>{
@@ -51,8 +51,8 @@ const login = async (req,res)=>{
             return res.status(400).json({error:"Invalid credentials"});
         }
 
-        const token = jwt.sign({id:userExist._id},process.env.JWT_SECRET,{expiresIn:"3d"});
-        res.status(200).json({message:"User logged in successfully",data:user,token});
+        // const token = jwt.sign({id:userExist._id},process.env.JWT_SECRET,{expiresIn:"3d"});
+        // res.status(200).json({message:"User logged in successfully",data:user,token});
     }catch(err){
         console.log(err.message);
         res.status(500).json({error:"Internal server error"});

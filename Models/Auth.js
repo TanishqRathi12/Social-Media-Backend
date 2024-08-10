@@ -4,6 +4,7 @@ const loginSchema = new Schema({
     user:{
         type:String,
         required:true,
+        unique:true,
     },
     email:{
         type:String,
@@ -16,11 +17,11 @@ const loginSchema = new Schema({
     },
     createdAt: {
         type: Date,
-        default: Date.now(),
+        default: Date.now,
       },
 });
 
-const Auth = model("logins",loginSchema);
+const Auth = model("login",loginSchema);
 
 module.exports = Auth;
 

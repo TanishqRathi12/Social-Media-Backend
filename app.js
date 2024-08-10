@@ -3,6 +3,7 @@ const {mongoose} = require("mongoose");
 const dotenv = require("dotenv")
 const authRouter = require("./routes/AuthRoutes")
 const userRouter = require("./routes/UserRoutes")
+const postRouter = require("./routes/postRoutes")
 
 
 const app = express();
@@ -21,8 +22,16 @@ const PORT = 5000;
 
 app.use("/",userRouter)
 app.use("/auth",authRouter)
+app.use("/",postRouter)
+
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something went wrong!');
+});
 
 app.listen(PORT, ()=>{
     console.log(`Server is running on port ${PORT}`);
-    mongoose.connect(process.env.MONGO_URI);
+    mongoose.connect(process.env.MONGO_URI)
+    .then(()=>console.log("Database connected"))
+    .catch((err)=>console.log(err));
 })
