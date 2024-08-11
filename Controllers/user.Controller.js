@@ -1,52 +1,78 @@
 const User = require("../Models/User");
-const cloudinary = require('cloudinary').v2;
+//const cloudinary = require('cloudinary').v2;
 const multer = require("multer");
-const dotenv = require("dotenv").config();
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const jwt = require("jsonwebtoken");;
+const dotenv = require("dotenv");
+//const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
+dotenv.config();
 
+// cloudinary.config({
+//     cloud_name: "divlsorxk",
+//     api_key: "838881479133476",
+//     api_secret: process.env.CLOUDINARY_SECRET,
+// });
 
-cloudinary.config({
-    cloud_name: "divlsorxk",
-    api_key: "838881479133476",
-    api_secret: process.env.CLOUDINARY_URL,
-});
+// const storage = new CloudinaryStorage({
+//     cloudinary: cloudinary,
+//     params: {
+//         folder: "profile-Images",
+//         format: async (req, file) => ["jpg", "png", "jpeg"],
+//         public_id: (req, file) => file.originalname.split(".")[0],
+//     },
+// });
 
-const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-        folder: "profile-Images",
-        format: async (req, file) => ["jpg", "png", "jpeg"],
-        public_id: (req, file) => file.originalname.split(".")[0],
-    },
-});
-
-const upload = multer({ storage: storage });
-
-
-
+//const upload = multer({ storage: storage });
 
 const createUser = async (req, res) => {
-    const { username , Bio , ProfilePicture } = req.body;
-     try {
-        // let image = null;
-        // if(req,res){
-        //     image = req.file.path;
-        // }  
-        const userExist = await User.findOne({username});
-        if(userExist){
-            return res.status(400).json({error:"User already exist"});
+    const { username, email, password, Bio , ProfilePicture } = req.body;
+    try {
+        const userExist = await User.findOne({ $or: [{ username }, { email }] });
+        if (userExist) {
+            return res.status(400).json({ error: "Username or Email already exists" });
         }
-        const newUser = new User({Bio,username,ProfilePicture});//:image 
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({
+            username,
+            email,
+            password: hashedPassword,
+            Bio,
+            ProfilePicture
+        });
         const savedUser = await newUser.save();
-        const token = jwt.sign({id:savedUser._id},process.env.JWT_SECRET,{expiresIn:"3d"});
-        res.status(200).json({message:"User logged in successfully",data:savedUser,token});
+        const token = jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET, { expiresIn: "3d" });
+        res.status(201).json({ message: "User created successfully", data: savedUser, token });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 };
 
+const login = async (req,res)=>{
+        try{
+            const {email , password} = req.body;
+            if(!email || !password){
+                res.status(400).json({error:"Please fill all the fields"});
+            }
+    
+            const userExist = await User.findOne({email});
+            if(!userExist){
+                return res.status(400).json({error:"User does not exist"});
+            }
+    
+            const isMatch = await bcrypt.compare(password,userExist.password);
+            if(!isMatch){
+                return res.status(400).json({error:"Invalid credentials"});
+            }
+            
+            // const token = jwt.sign({id:userExist._id},process.env.JWT_SECRET,{expiresIn:"3d"});
+             res.status(200).json({message:"User logged in successfully",data:userExist});
+        }catch(err){
+           
+            console.log(err.message);
+            res.status(500).json({error:"Internal server error"});
+        }
+    }
 
 const getUserById = async (req, res) => {
     try {
@@ -60,69 +86,52 @@ const getUserById = async (req, res) => {
     }
 };
 
-
-
 const updateUser = async (req, res) => {
+    console.log("Request Body:", req.body);  
     try {
-        let updateImage = {...req.body};
-        if(req.file){
-            updateImage.ProfilePicture = req.file.path;
+        let updateData = { ...req.body };
+        if (updateData.password) {
+            updateData.password = await bcrypt.hash(updateData.password, 10);
         }
+        console.log("Update Data:", updateData);
         const updatedUser = await User.findByIdAndUpdate(
             req.params.id,
-            req.body,
-            { new: true }
+            updateData,
+            
+            { new: true, runValidators: true }
         );
+        console.log("Updated User:", updatedUser); 
+
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found" });
         }
         res.status(200).json(updatedUser);
     } catch (error) {
+        console.error("Update Error:", error.message);
         res.status(400).json({ message: error.message });
     }
 };
-
-// const deleteUser = async (req, res) => {
-//     try {
-//         const deletedUser = await User.findByIdAndDelete(req.params.id);
-//         if (!deletedUser) {
-//             return res.status(404).json({ message: "User not found" });
-//         }
-//         res.status(200).json({ message: "User deleted successfully" });
-//     } catch (error) {
-//         res.status(400).json({ message: error.message });
-//     }
-// };
-
-
 const followUser = async (req, res) => {
-    
     try {
-        const userId  = req.user.id; 
-        const { followUserId } = req.body; 
-        console.log(userId)
-        console.log(followUserId)
-       
+        const userId = req.user.id;
+        const { followUserId } = req.body;
+
         if (userId === followUserId) {
             return res.status(400).json({ message: "You cannot follow yourself" });
         }
 
         const user = await User.findById(userId);
-       const followUser = await User.findById(followUserId );
-    //    console.log(followUser)
-    //    console.log(user)
+        const followUser = await User.findById(followUserId);
 
         if (!user || !followUser) {
-            return res.status(404).json({ message: "User(s) not found" });
+            return res.status(404).json({ message: "User not found" });
         }
 
-      
         if (!user.following.includes(followUserId)) {
             user.following.push(followUserId);
             await user.save();
         }
 
-        
         if (!followUser.followers.includes(userId)) {
             followUser.followers.push(userId);
             await followUser.save();
@@ -136,10 +145,8 @@ const followUser = async (req, res) => {
 
 const unFollowUser = async (req, res) => {
     try {
-        const  userId  = req.user.id; 
-        const { unFollowUserId } = req.body; 
-        console.log(userId)
-        console.log(unFollowUserId)
+        const userId = req.user.id;
+        const { unFollowUserId } = req.body;
 
         if (userId === unFollowUserId) {
             return res.status(400).json({ message: "You cannot unfollow yourself" });
@@ -152,11 +159,9 @@ const unFollowUser = async (req, res) => {
             return res.status(404).json({ message: "User(s) not found" });
         }
 
-       
         user.following = user.following.filter(id => id.toString() !== unFollowUserId.toString());
         await user.save();
 
-        
         unFollowUser.followers = unFollowUser.followers.filter(id => id.toString() !== userId.toString());
         await unFollowUser.save();
 
@@ -167,10 +172,10 @@ const unFollowUser = async (req, res) => {
 };
 
 module.exports = {
+    login,
     getUserById,
-    createUser:[upload.single("ProfilePicture"),createUser],
-    updateUser:[upload.single("ProfilePicture"),updateUser],
+    createUser, //[upload.single("ProfilePicture"), createUser],
+    updateUser, //[upload.single("ProfilePicture"), updateUser],
     followUser,
     unFollowUser,
-    // deleteUser,
 };

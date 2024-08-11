@@ -1,9 +1,10 @@
 const express = require("express");
 const {mongoose} = require("mongoose");
 const dotenv = require("dotenv")
-const authRouter = require("./routes/AuthRoutes")
+//const authRouter = require("./routes/AuthRoutes")
 const userRouter = require("./routes/UserRoutes")
 const postRouter = require("./routes/postRoutes")
+const cors = require("cors");
 
 
 const app = express();
@@ -15,13 +16,13 @@ app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
+app.use(cors());
 
 
 
 const PORT = 5000;
 
 app.use("/",userRouter)
-app.use("/auth",authRouter)
 app.use("/",postRouter)
 
 app.use((err, req, res, next) => {

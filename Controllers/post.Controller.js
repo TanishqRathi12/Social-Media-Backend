@@ -1,37 +1,22 @@
 const Post = require("../Models/Posts");
-const multer = require("multer");
-const cloudinary = require("cloudinary").v2;
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const Comment = require("../Models/comment");
 
 
-cloudinary.config({
-    cloud_name: "divlsorxk",
-    api_key: "838881479133476",
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-});
-
-
-const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
-    params: {
-        folder: "posts",  
-        allowed_formats: ["jpg", "png", "jpeg"],
-        public_id: (req, file) => file.originalname.split(".")[0],
-    },
-});
-
-const upload = multer({ storage: storage });
 
 
 const createPost = async (req, res) => {
-    const { author, caption ,image } = req.body;
-     try {
-        // let image = null;
-        // if (req.file) {
-        //     image = req.file.path;  
-        // }
-        const newPost = new Post({ author, caption, image });
+    const { author, caption, image } = req.body;
+
+    if (!author || !caption || !image) {
+        return res.status(400).json({ message: 'Author, caption, and image are required.' });
+    }
+
+    try {
+        const newPost = new Post({
+            author,
+            caption,
+            image,
+        });
         const savedPost = await newPost.save();
         res.status(201).json(savedPost);
     } catch (error) {
@@ -39,6 +24,16 @@ const createPost = async (req, res) => {
     }
 };
 
+
+
+const getAllPosts = async (req, res) => {
+    try {
+        const posts = await Post.find();
+        res.status(200).json(posts);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
 
 const getPostById = async (req, res) => {
     try {
@@ -129,9 +124,10 @@ const deletePost = async (req, res) => {
 };
 
 module.exports = {
-    createPost: [upload.single("image"), createPost],
+    getAllPosts,
+    createPost,
     getPostById,
-    updatePost: [upload.single("image"), updatePost],
+    updatePost,
     deletePost,
     addLike,
     addComment,

@@ -5,6 +5,7 @@ const {Router} = require("express")
 const userRouter = Router();
 
 userRouter.post("/createUser",userController.createUser)
+userRouter.post("/login",userController.login)
 userRouter.get("/getUserById/:id",verifyToken,userController.getUserById)
 userRouter.put("/updateUser/:id",verifyToken,userController.updateUser)
 // userRouter.delete("/deleteUser/:id", verifyToken, userController.deleteUser)

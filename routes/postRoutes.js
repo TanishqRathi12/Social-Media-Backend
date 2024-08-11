@@ -6,6 +6,8 @@ const postRouter = Router();
 
 postRouter.post("/createPost",verifyToken, postController.createPost);
 
+postRouter.get("/posts",postController.getAllPosts);
+
 postRouter.get("/getPostById/:id",verifyToken,postController.getPostById);
 
 postRouter.patch("/updatePost/:id",verifyToken,postController.updatePost);
