@@ -35,17 +35,17 @@ app.use(express.static("public"));
 
 
 
-const PORT = 5000;
 
-app.use("/",userRouter)
-app.use("/",postRouter)
+
+app.use("/api",userRouter)
+app.use("/api",postRouter)
 
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something went wrong!');
 });
-
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, ()=>{
     console.log(`Server is running on port ${PORT}`);
     mongoose.connect(process.env.MONGO_URI)
