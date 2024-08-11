@@ -6,8 +6,23 @@ const userRouter = require("./routes/UserRoutes")
 const postRouter = require("./routes/postRoutes")
 const cors = require("cors");
 
-
 const app = express();
+
+app.use(cors({
+    origin: 'https://social-media-front-end-gilt.vercel.app', 
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+}));
+
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "https://social-media-front-end-gilt.vercel.app");
+    res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    res.header("Access-Control-Allow-Credentials", "true");
+    next();
+});
+
+
 
 dotenv.config()
 
@@ -16,11 +31,7 @@ app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
-app.use('*',cors({
-    origin: 'https://social-media-front-end-gilt.vercel.app', 
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-}));
+
 
 
 
