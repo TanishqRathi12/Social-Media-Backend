@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
 app.use(cors({
-    origin: 'https://your-frontend-domain.vercel.app',
+    origin: 'https://social-media-front-end-gilt.vercel.app/Login',
   }));
 
 
