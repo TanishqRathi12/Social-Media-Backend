@@ -16,7 +16,7 @@ app.set("view engine", "ejs");
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"));
-app.use(cors({
+app.use('*',cors({
     origin: 'https://social-media-front-end-gilt.vercel.app', 
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
@@ -28,6 +28,7 @@ const PORT = 5000;
 
 app.use("/",userRouter)
 app.use("/",postRouter)
+
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
