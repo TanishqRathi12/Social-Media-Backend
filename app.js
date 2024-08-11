@@ -30,8 +30,8 @@ app.use(express.static("public"));
 
 
 
-app.use("/",userRouter)
-app.use("/",postRouter)
+app.use("/api",userRouter)
+app.use("/api",postRouter)
 
 
 app.use((err, req, res, next) => {
