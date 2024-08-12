@@ -1,7 +1,6 @@
 const express = require("express");
 const {mongoose} = require("mongoose");
 const dotenv = require("dotenv")
-//const authRouter = require("./routes/AuthRoutes")
 const userRouter = require("./routes/UserRoutes")
 const postRouter = require("./routes/postRoutes")
 const cors = require("cors");
@@ -14,13 +13,7 @@ app.use(cors({
     credentials: true,
 }));
 
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "https://social-media-front-end-gilt.vercel.app");
-    res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-    res.header("Access-Control-Allow-Credentials", "true");
-    next();
-});
+
 
 
 
@@ -37,8 +30,8 @@ app.use(express.static("public"));
 
 
 
-app.use("/api",userRouter)
-app.use("/api",postRouter)
+app.use("/",userRouter)
+app.use("/",postRouter)
 
 
 app.use((err, req, res, next) => {
