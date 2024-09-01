@@ -22,7 +22,7 @@ const createUser = async (req, res) => {
             ProfilePicture
         });
         const savedUser = await newUser.save();
-        const token = jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET, { expiresIn: "3d" });
+        const token = jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
         res.status(201).json({ message: "User created successfully", data: savedUser, token });
     } catch (error) {
         res.status(400).json({ message: error.message });
