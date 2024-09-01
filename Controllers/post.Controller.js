@@ -5,17 +5,17 @@ const Comment = require("../Models/comment");
 
 
 const createPost = async (req, res) => {
-    const { author, caption, image } = req.body;
-
-    if (!author || !caption || !image) {
+    console.log(req.body);
+    const { caption, image } = req.body;
+    if ( !caption || !image) {
         return res.status(400).json({ message: 'Author, caption, and image are required.' });
     }
-
+    
     try {
         const newPost = new Post({
-            author,
             caption,
             image,
+            author: req.user.id,
         });
         const savedPost = await newPost.save();
         res.status(201).json(savedPost);
@@ -28,7 +28,8 @@ const createPost = async (req, res) => {
 
 const getAllPosts = async (req, res) => {
     try {
-        const posts = await Post.find();
+        
+        const posts = await Post.find().populate("author","username");
         res.status(200).json(posts);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -37,7 +38,7 @@ const getAllPosts = async (req, res) => {
 
 const getPostById = async (req, res) => {
     try {
-        const post = await Post.findById(req.params.id);
+        const post = await Post.findById(req.params.id).populate("author","username");
         if (!post) {
             return res.status(404).json({ message: "Post not found" });
         }
@@ -50,6 +51,7 @@ const getPostById = async (req, res) => {
 
 const updatePost = async (req, res) => {
     try {
+        
         let updatedData = { ...req.body };
         if (req.file) {
             updatedData.image = req.file.path;  
@@ -92,7 +94,7 @@ const addComment = async (postId, authorId, content) => {
         const newComment = new Comment({
             post: postId,
             author: authorId,
-            content: content,
+            content: content.text,
         });
         await newComment.save();
 
@@ -108,6 +110,21 @@ const addComment = async (postId, authorId, content) => {
         throw new Error(error.message);
     }
 };
+
+const getComment = async (req, res) => {
+    try {
+        const comments = await Comment.find({ post: req.params.id }).populate("author", "username");
+        if (comments.length === 0) {
+            return res.status(404).json({ message: "No comments found for this post" });
+        }
+        res.status(200).json(comments);
+    } catch (error) {
+        
+        console.error("Error fetching comments:", error.message);
+        res.status(500).json({ message: error.message });
+    }
+};
+
 
 
 
@@ -131,4 +148,5 @@ module.exports = {
     deletePost,
     addLike,
     addComment,
+    getComment,
 };

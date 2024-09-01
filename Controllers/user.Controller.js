@@ -1,29 +1,10 @@
 const User = require("../Models/User");
-//const cloudinary = require('cloudinary').v2;
-const multer = require("multer");
 const dotenv = require("dotenv");
-//const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 dotenv.config();
 
-// cloudinary.config({
-//     cloud_name: "divlsorxk",
-//     api_key: "838881479133476",
-//     api_secret: process.env.CLOUDINARY_SECRET,
-// });
-
-// const storage = new CloudinaryStorage({
-//     cloudinary: cloudinary,
-//     params: {
-//         folder: "profile-Images",
-//         format: async (req, file) => ["jpg", "png", "jpeg"],
-//         public_id: (req, file) => file.originalname.split(".")[0],
-//     },
-// });
-
-//const upload = multer({ storage: storage });
 
 const createUser = async (req, res) => {
     const { username, email, password, Bio , ProfilePicture } = req.body;
@@ -65,7 +46,6 @@ const login = async (req,res)=>{
                 return res.status(400).json({error:"Invalid credentials"});
             }
             
-            // const token = jwt.sign({id:userExist._id},process.env.JWT_SECRET,{expiresIn:"3d"});
              res.status(200).json({message:"User logged in successfully",data:userExist});
         }catch(err){
            
@@ -87,6 +67,7 @@ const getUserById = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
+    console.log(req.body)
     console.log("Request Body:", req.body);  
     try {
         let updateData = { ...req.body };
@@ -174,8 +155,8 @@ const unFollowUser = async (req, res) => {
 module.exports = {
     login,
     getUserById,
-    createUser, //[upload.single("ProfilePicture"), createUser],
-    updateUser, //[upload.single("ProfilePicture"), updateUser],
+    createUser,
+    updateUser,
     followUser,
     unFollowUser,
 };

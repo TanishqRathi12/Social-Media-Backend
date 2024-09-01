@@ -26,9 +26,9 @@ postRouter.post("/posts/:id/like",verifyToken,  async (req, res) => {
     }
 });
 
-postRouter.post("/posts/:id/comment", verifyToken, async (req, res) => {
+postRouter.post("/posts/:id/comments", verifyToken, async (req, res) => {
     try {
-        const { content } = req.body;
+        const  content  = req.body;
         const userId = req.user.id;
         const postId = req.params.id;
         const newComment = await postController.addComment(postId, userId, content);
@@ -37,6 +37,8 @@ postRouter.post("/posts/:id/comment", verifyToken, async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 });
+
+postRouter.get("/posts/:id/comments", postController.getComment);
 
 module.exports = postRouter;
 
