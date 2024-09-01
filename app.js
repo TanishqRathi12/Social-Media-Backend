@@ -7,7 +7,13 @@ const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+    origin: 'https://social-media-front-end-gilt.vercel.app',
+    credentials: true, 
+    optionsSuccessStatus: 200 
+};
+
+app.use(cors(corsOptions));
 
 // app.use(cors(
 //     {
