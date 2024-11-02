@@ -7,21 +7,21 @@ const cors = require("cors");
 
 const app = express();
 
-// const corsOptions = {
-//     origin: 'https://social-media-front-end-seven.vercel.app',
-//     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-//     credentials: true,
-//     optionsSuccessStatus: 200
-// }
+const corsOptions = {
+    origin: 'https://social-media-front-end-seven.vercel.app',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 200
+}
 
-//app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 
-app.use(cors(
-    {
-        origin: "http://localhost:3000",
-        credentials: true,
-    }
-));
+// app.use(cors(
+//     {
+//         origin: "http://localhost:3000",
+//         credentials: true,
+//     }
+// ));
 
 
 
