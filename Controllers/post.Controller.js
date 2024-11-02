@@ -7,7 +7,7 @@ const Comment = require("../Models/comment");
 const createPost = async (req, res) => {
     console.log(req.body);
     const { caption, image } = req.body;
-    if ( !caption || !image) {
+    if (!image) {
         return res.status(400).json({ message: 'Author, caption, and image are required.' });
     }
     
@@ -51,11 +51,8 @@ const getPostById = async (req, res) => {
 
 const updatePost = async (req, res) => {
     try {
-        
-        let updatedData = { ...req.body };
-        if (req.file) {
-            updatedData.image = req.file.path;  
-        }
+        let updatedData =  req.body ;
+        console.log(updatedData);
         const updatedPost = await Post.findByIdAndUpdate(req.params.id, updatedData, { new: true });
         if (!updatedPost) {
             return res.status(404).json({ message: "Post not found" });
