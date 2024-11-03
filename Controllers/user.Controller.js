@@ -66,13 +66,27 @@ const getUserById = async (req, res) => {
     }
 };
 
+const getAllUsers = async (req,res)=>{
+    try{
+        const users = await User.find();
+        if(!users){
+            return res.status(404).json({message:"Users not found"});
+        }
+        res.status(200).json(users);
+    }
+    catch(err){
+        res.status(500).json({error:err.message});
+    }
+}
+
 const updateUser = async (req, res) => {
     console.log(req.body)
     console.log("Request Body:", req.body);  
     try {
         let updateData = { ...req.body };
-        if (updateData.password) {
-            updateData.password = await bcrypt.hash(updateData.password, 10);
+        if(updateData.username === ''){
+            const user = await User.findById(req.params.id);
+            updateData.username = user.username;
         }
         console.log("Update Data:", updateData);
         const updatedUser = await User.findByIdAndUpdate(
@@ -152,6 +166,22 @@ const unFollowUser = async (req, res) => {
     }
 };
 
+const getFollowStates = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const user = await User.findById(userId).populate('following', '_id');
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json({ following: user.following.map(followed => followed._id.toString()) });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     login,
     getUserById,
@@ -159,4 +189,6 @@ module.exports = {
     updateUser,
     followUser,
     unFollowUser,
+    getAllUsers,
+    getFollowStates,
 };
