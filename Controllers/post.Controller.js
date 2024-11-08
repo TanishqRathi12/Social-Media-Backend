@@ -30,8 +30,16 @@ const createPost = async (req, res) => {
 
 const getAllPosts = async (req, res) => {
   try {
-    const posts = await Post.find().populate("author", "username");
-    res.status(200).json(posts);
+    const page = parseInt(req.query.page) || 1;
+    const skip = (page - 1) * 5
+    const posts = await Post.find().skip(skip).limit(5).populate("author", "username");
+    const finals = shuffle(posts);
+    function shuffle(param){
+      const shuffle = [...param]
+      shuffle.sort(()=>Math.random() - 0.5);
+      return shuffle;
+    };
+    res.status(200).json(finals);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
