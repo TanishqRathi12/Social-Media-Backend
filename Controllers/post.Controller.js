@@ -47,10 +47,10 @@ const getAllPosts = async (req, res) => {
 
 const getPostById = async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id).populate(
-      "author",
-      "username"
-    );
+   
+    const post = await Post.find({author : req.params.id})
+   // console.log(post)
+   //console.log("Here working",req.params.id)
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
     }
